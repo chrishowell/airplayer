@@ -2,10 +2,12 @@ require 'ruby-progressbar'
 
 module AirPlayer
   class Controller
-    def initialize(options = { device: nil })
+
+    def initialize(options = { device: nil, progress: true })
       @device      = Device.get(options[:device])
       @player      = nil
       @progressbar = nil
+      @progress = options[:progress]
     end
 
     def play(media)
@@ -13,16 +15,20 @@ module AirPlayer
       puts "  Title: #{media.title}"
       puts " Device: #{@device.name} (Resolution: #{@device.info.resolution})"
 
-      @progressbar = ProgressBar.create(format: '   %a |%b%i| %p%% %t')
       @player = @device.play(media.path)
-      @player.progress -> playback {
-        @progressbar.title    = 'Streaming'
-        @progressbar.progress = playback.percent if playback.percent
-      }
+
+      if (@progress)
+        @progressbar = ProgressBar.create(format: '   %a |%b%i| %p%% %t')
+        @player.progress -> playback {
+          @progressbar.title    = 'Streaming'
+          @progressbar.progress = playback.percent if playback.percent
+        }
+      end
+
       @player.wait
     end
 
-    def pause
+    def stop 
       if @player
         @player.stop
       end
@@ -30,6 +36,27 @@ module AirPlayer
       if @progressbar
         @progressbar.title = 'Complete'
         @progressbar.finish
+      end
+    end
+
+    def pause
+      if @player
+        @player.pause
+      end
+
+      if @progressbar
+        @progressbar.title = 'Paused'
+        @progressbar.finish
+      end
+    end
+
+    def resume
+      if @player
+        @player.resume
+      end
+
+      if @progressbar
+        @progressbar.title = 'Streaming'
       end
     end
   end
