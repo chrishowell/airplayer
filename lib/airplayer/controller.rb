@@ -39,6 +39,12 @@ module AirPlayer
       end
     end
 
+    def skip(seconds)
+      if @player
+        @player.seek(seconds)
+      end
+    end
+
     def pause
       if @player
         @player.pause
