@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'airplayer'
+
+require 'pry'
+Pry.start
